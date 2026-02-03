@@ -8,7 +8,7 @@ A first-person 3D maze game built with Three.js. Navigate through procedurally g
 - **Level progression** — mazes grow larger each level (11×11 → 51×51)
 - **Dungeon atmosphere** — textured stone walls, flickering torches, fog
 - **Navigation aids**:
-  - Breadcrumbs (8 per level) — drop glowing markers on the floor
+  - Rubber ducks (8 per level) — drop glowing duck markers on the floor
   - Chalk marks (12 per level) — draw X marks on walls
   - Path hints (2 per level) — reveal the path to the exit
 - **Smooth first-person controls** with collision detection
@@ -22,7 +22,7 @@ A first-person 3D maze game built with Three.js. Navigate through procedurally g
 | A / ← | Strafe left |
 | D / → | Strafe right |
 | Mouse | Look around |
-| B | Drop breadcrumb |
+| B | Drop rubber duck |
 | C | Mark wall with chalk |
 | P | Show path to exit (limited uses) |
 | Esc | Release mouse pointer |
@@ -31,7 +31,7 @@ A first-person 3D maze game built with Three.js. Navigate through procedurally g
 
 1. Click to start and lock your mouse pointer
 2. Navigate through the maze to find the glowing green exit
-3. Use breadcrumbs and chalk marks to track where you've been
+3. Drop rubber ducks and chalk marks to track where you've been
 4. Press P if you're stuck to reveal the path (limited to 2 per level)
 5. Reach the exit to advance to the next level
 
@@ -82,11 +82,13 @@ maze-game/
 │   ├── main.js         # Game initialization and loop
 │   ├── maze.js         # Maze generation and rendering
 │   ├── player.js       # Player movement and controls
-│   ├── navigation.js   # Breadcrumbs and chalk marks
+│   ├── navigation.js   # Rubber ducks and chalk marks
 │   └── themes.js       # Visual themes and textures
 └── assets/
-    └── textures/
-        └── dungeon/    # Wall, floor, ceiling textures
+    ├── textures/
+    │   └── dungeon/    # Wall, floor, ceiling textures
+    └── models/
+        └── rubber_duck_toy_2k.gltf/  # Duck marker model
 ```
 
 ## License
