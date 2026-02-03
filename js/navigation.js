@@ -1,8 +1,11 @@
 import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
-const BREADCRUMB_LIMIT = 8;
+const DUCK_LIMIT = 8;
 const CHALK_LIMIT = 12;
 const CHALK_RANGE = 2;
+const DUCK_SCALE = 1;
+const DUCK_MODEL_PATH = 'assets/models/rubber_duck_toy_2k.gltf/rubber_duck_toy_2k.gltf';
 
 export class NavigationAids {
     constructor(scene, camera) {
@@ -10,21 +13,17 @@ export class NavigationAids {
         this.camera = camera;
         this.wallMeshes = [];
 
-        this.breadcrumbs = [];
-        this.breadcrumbCount = BREADCRUMB_LIMIT;
+        this.ducks = [];
+        this.duckLights = [];
+        this.duckCount = DUCK_LIMIT;
+        this.duckModel = null;
+        this.duckModelLoaded = false;
 
         this.chalkMarks = [];
         this.chalkCount = CHALK_LIMIT;
 
         this.raycaster = new THREE.Raycaster();
         this.isActive = false;
-
-        this.breadcrumbMaterial = new THREE.MeshStandardMaterial({
-            color: 0xffaa44,
-            emissive: 0xffaa44,
-            emissiveIntensity: 0.6,
-            roughness: 0.3
-        });
 
         this.chalkMaterial = new THREE.MeshStandardMaterial({
             color: 0xeeeeee,
@@ -39,6 +38,25 @@ export class NavigationAids {
         this.onError = null;
 
         this.setupControls();
+        this.loadDuckModel();
+    }
+
+    loadDuckModel() {
+        const loader = new GLTFLoader();
+        loader.load(
+            DUCK_MODEL_PATH,
+            (gltf) => {
+                this.duckModel = gltf.scene;
+                this.duckModel.scale.set(DUCK_SCALE, DUCK_SCALE, DUCK_SCALE);
+
+                this.duckModelLoaded = true;
+                console.log('Duck model loaded');
+            },
+            undefined,
+            (error) => {
+                console.error('Failed to load duck model:', error);
+            }
+        );
     }
 
     setupControls() {
@@ -49,7 +67,7 @@ export class NavigationAids {
         if (!this.isActive) return;
 
         if (event.code === 'KeyB') {
-            this.dropBreadcrumb();
+            this.dropDuck();
         } else if (event.code === 'KeyC') {
             this.placeChalkMark();
         }
@@ -67,8 +85,8 @@ export class NavigationAids {
         this.wallMeshes = meshes;
     }
 
-    dropBreadcrumb() {
-        if (this.breadcrumbCount <= 0) {
+    dropDuck() {
+        if (this.duckCount <= 0) {
             // TODO: Play "can't do that" error sound
             if (this.onError) this.onError('breadcrumb');
             return;
@@ -76,22 +94,53 @@ export class NavigationAids {
 
         if (!this.playerPosition) return;
 
-        const geometry = new THREE.SphereGeometry(0.08, 12, 8);
-        const breadcrumb = new THREE.Mesh(geometry, this.breadcrumbMaterial);
+        if (!this.duckModelLoaded) {
+            console.warn('Duck model not loaded yet');
+            return;
+        }
 
-        breadcrumb.position.set(
+        // Clone the duck model
+        const duck = this.duckModel.clone();
+
+        // Random Y-axis rotation
+        const randomRotation = Math.random() * Math.PI * 2;
+        duck.rotation.y = randomRotation;
+
+        // Position at player's feet
+        duck.position.set(
             this.playerPosition.x,
-            0.08,
+            0,
             this.playerPosition.z
         );
 
-        this.scene.add(breadcrumb);
-        this.breadcrumbs.push(breadcrumb);
-        this.breadcrumbCount--;
+        this.scene.add(duck);
+        this.ducks.push(duck);
 
-        // TODO: Play breadcrumb drop sound
+        // Add overhead spotlight to illuminate duck naturally
+        const overheadLight = new THREE.PointLight(0xffeecc, 0.8, 4);
+        overheadLight.position.set(
+            this.playerPosition.x,
+            0.5,
+            this.playerPosition.z
+        );
+        this.scene.add(overheadLight);
+        this.duckLights.push(overheadLight);
 
-        if (this.onBreadcrumbDrop) this.onBreadcrumbDrop(this.breadcrumbCount);
+        // Add fill light below to reduce shadows
+        const fillLight = new THREE.PointLight(0xffeecc, 0.3, 4);
+        fillLight.position.set(
+            this.playerPosition.x,
+            0.1,
+            this.playerPosition.z
+        );
+        this.scene.add(fillLight);
+        this.duckLights.push(fillLight);
+
+        this.duckCount--;
+
+        // TODO: Play duck drop sound
+
+        if (this.onBreadcrumbDrop) this.onBreadcrumbDrop(this.duckCount);
     }
 
     placeChalkMark() {
@@ -158,13 +207,21 @@ export class NavigationAids {
     }
 
     reset() {
-        for (const breadcrumb of this.breadcrumbs) {
-            this.scene.remove(breadcrumb);
-            breadcrumb.geometry.dispose();
+        // Remove ducks
+        for (const duck of this.ducks) {
+            this.scene.remove(duck);
         }
-        this.breadcrumbs = [];
-        this.breadcrumbCount = BREADCRUMB_LIMIT;
+        this.ducks = [];
 
+        // Remove duck lights
+        for (const light of this.duckLights) {
+            this.scene.remove(light);
+        }
+        this.duckLights = [];
+
+        this.duckCount = DUCK_LIMIT;
+
+        // Remove chalk marks
         for (const chalk of this.chalkMarks) {
             this.scene.remove(chalk);
             chalk.children.forEach(child => child.geometry.dispose());
@@ -174,7 +231,7 @@ export class NavigationAids {
     }
 
     getBreadcrumbCount() {
-        return this.breadcrumbCount;
+        return this.duckCount;
     }
 
     getChalkCount() {

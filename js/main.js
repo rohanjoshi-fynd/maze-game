@@ -145,7 +145,7 @@ class Game {
             let message = '';
             switch (type) {
                 case 'breadcrumb':
-                    message = 'No breadcrumbs left';
+                    message = 'No ducks left';
                     break;
                 case 'chalk':
                     message = 'No chalk left';
