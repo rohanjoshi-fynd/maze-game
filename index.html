@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Maze Game</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="level-info">
+        <div id="level-display">Level 1</div>
+        <div id="size-display">11 × 11</div>
+        <div id="inventory">
+            <div class="inventory-item">
+                <span class="inventory-label">Breadcrumbs:</span>
+                <span id="breadcrumb-count">8</span>
+            </div>
+            <div class="inventory-item">
+                <span class="inventory-label">Chalk:</span>
+                <span id="chalk-count">12</span>
+            </div>
+            <div class="inventory-item">
+                <span class="inventory-label">Hints:</span>
+                <span id="hints-count">2</span>
+            </div>
+        </div>
+    </div>
+    <div id="controls-hint">B / C / P</div>
+    <div id="error-message"></div>
+    <div id="overlay">
+        <div id="instructions">
+            <h1>Maze Escape</h1>
+            <p>Find your way to the green exit!</p>
+            <p class="controls">WASD or Arrow Keys to move</p>
+            <p class="controls">Mouse to look around</p>
+            <p class="controls">B to drop breadcrumb | C to chalk wall | P for path hint</p>
+            <p class="start-prompt">Click to Start</p>
+        </div>
+        <div id="win-message">
+            <h1 id="win-title">Level Complete!</h1>
+            <p>Next level starting...</p>
+        </div>
+    </div>
+    <div id="crosshair"></div>
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js"
+            }
+        }
+    </script>
+    <script type="module" src="js/main.js"></script>
+</body>
+</html>
